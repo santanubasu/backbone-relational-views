@@ -2,9 +2,7 @@
 
 <html lang="en">
     <head>
-        <title>Backbone Relational Views Test Suite</title>
-
-        <link rel="stylesheet" href="./lib/qunit.css" type="text/css" media="screen" />
+        <title>Backbone Relational Views Examples</title>
 
         <script>
             var require = {
@@ -13,8 +11,7 @@
                     underscore:"./lib/underscore",
                     backbone:"./lib/backbone",
                     backboneRelational:"./lib/backbone-relational",
-                    backboneRelationalViews:"../backbone-relational-views",
-                    qunit:"./lib/qunit"
+                    backboneRelationalViews:"../backbone-relational-views"
                 },
                 shim: {
                     "jquery": {
@@ -29,19 +26,16 @@
                     },
                     "backboneRelational": {
                         deps: ["backbone"]
-                    },
-                    "qunit":{
-                        exports:"QUnit"
                     }
                 }
             };
         </script>
 
-        <script src="./lib/require.js" data-main="./tests.js"></script>
+        <script src="./lib/require.js" data-main="./demo.js"></script>
 
     </head>
     <body>
-        <div id="qunit"></div>
-        <div id="qunit-fixture"></div>
+        <div id="demo">
+        </div>
     </body>
 </html>

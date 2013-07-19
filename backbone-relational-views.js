@@ -150,6 +150,9 @@ define([
         createSubviews: function () {
             for (var key in this.model.attributes) {
                 var value = this.model.attributes[key];
+                if (us.isUndefined(value)||us.isNull(value)) {
+                    continue;
+                }
                 var relation = this.model.getRelation(key);
                 if (us.isUndefined(relation)) {
                     continue;
