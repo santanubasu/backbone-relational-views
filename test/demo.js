@@ -15,18 +15,19 @@ define([
     }
 
     var templateC = function(data) {
-        return "<div style='position:relative;left:20px'><div>"+data.value+"</div>"+data.a+data.bb.join(" ")+"</div>";
+        return "<div style='position:relative;left:20px'><div>"+data.value+"</div>"+data.a+data.bb.join(" ")+data.cc.join(" ")+"</div>";
     }
 
-    var A = bb.RelationalModel.extend({
+    // Pollute global namespace for now, as BBR has no concept of selfRelatedModel yet
+    A = bb.RelationalModel.extend({
         idAttribute:"id"
     });
 
-    var B = bb.RelationalModel.extend({
+    B = bb.RelationalModel.extend({
         idAttribute:"id"
     });
 
-    var C = bb.RelationalModel.extend({
+    C = bb.RelationalModel.extend({
         idAttribute:"id",
         relations:[
             {
@@ -46,6 +47,19 @@ define([
                 reverseRelation: {
                     key:"c",
                     relatedModel:B
+                }
+            },
+            {
+                type:bb.HasMany,
+                key:"cc",
+                relatedModel: "C",
+                collectionOptions:{
+                    comparator:function(model) {
+                        return model.attributes.value;
+                    }
+                },
+                reverseRelation: {
+                    key:"c"
                 }
             }
         ]
@@ -92,6 +106,12 @@ define([
                 bb:{
                     template:templateB,
                     viewType:BV
+                },
+                cc:{
+                    template:templateC,
+                    viewType:function() {
+                        return CV;
+                    }
                 }
             }
         })
@@ -116,7 +136,7 @@ define([
         }
     });
 
-    function s1() {
+    function s000() {
         // Build the relational model with no relational submodels initially, and build the relational view using that model.
         c = new C({
             id:"c1",
@@ -126,20 +146,20 @@ define([
             model:c,
             el:$("#result")
         });
-        next = s2;
+        next = s100;
     }
-    var next = s1;
+    var next = s000;
     $("#next").trigger("click");
 
-    function s2() {
+    function s100() {
         // Modify a primitive property.
         c.set({
             value:"c1-mod1"
         });
-        next = s3;
+        next = s200;
     }
 
-    function s3() {
+    function s200() {
         // Set a relational property.
         c.set({
             a:{
@@ -147,10 +167,10 @@ define([
                 value:"a1"
             }
         });
-        next = s4;
+        next = s300;
     }
 
-    function s4() {
+    function s300() {
         // Replace  a relational property.
         c.set({
             a:{
@@ -158,28 +178,28 @@ define([
                 value:"a2"
             }
         });
-        next = s5;
+        next = s400;
     }
 
-    function s5() {
+    function s400() {
         // Modify a primitive property of a relational property, using deep reference.
         c.set({
             a:{
                 value:"a2-mod1"
             }
         });
-        next = s6;
+        next = s500;
     }
 
-    function s6() {
+    function s500() {
         // Modify a primitive property of a relational property, using direct reference to relational property.
         c.get("a").set({
             value:"a2-mod2"
         });
-        next = s7;
+        next = s600;
     }
 
-    function s7() {
+    function s600() {
         // Add elements to a relational collection.
         c.set({
             bb:[
@@ -193,10 +213,10 @@ define([
                 }
             ]
         });
-        next = s8;
+        next = s700;
     }
 
-    function s8() {
+    function s700() {
         // Add more elements to a relation collection using deep reference, retaining existing ones, and applying sort.
         c.set(
             {
@@ -214,10 +234,10 @@ define([
             {
                 remove:false
             });
-        next = s9;
+        next = s800;
     }
 
-    function s9() {
+    function s800() {
         // Add more elements to a relation collection, using direct reference, retaining existing ones, and applying sort.
         c.get("bb").add([
             {
@@ -229,10 +249,10 @@ define([
                 value:"b6"
             }
         ]);
-        next = s10;
+        next = s900;
     }
 
-    function s10() {
+    function s900() {
         // Remove last two elements in a relational collection, using deep reference.
         c.set(
             {
@@ -255,31 +275,53 @@ define([
                     }
                 ]
             });
-        next = s11;
+        next = s1000;
     }
 
-    function s11() {
+    function s1000() {
         // Remove the second element of relational collection, using direct reference
         c.get("bb").remove(c.get("bb").at(1));
-        next = null;
+        next = s1100;
     }
 
-    /*
-            c.set(
+    function s1100() {
+        // Modify a primitive property of an element of a relational collection using deep reference
+        c.set(
             {
                 id:"c1",
                 bb:[
                     {
-                        id:"b2",
-                        value:"b2-mod"
+                        id:"b1",
+                        value:"b1-mod1"
                     },
                 ]
             },
             {
                 remove:false
             });
+        next = s1200;
+    }
 
+    function s1200() {
+        // Unset a relational property using direct reference
         c.unset("a");
+        next = s1300;
+    }
 
-     */
+    function s1300() {
+        // Add elements to a relational collection that are of the same type as the parent
+        c.set({
+            cc:[
+                {
+                    id:"c10",
+                    value:"c10"
+                },
+                {
+                    id:"c11",
+                    value:"c11"
+                }
+            ]
+        });
+        next = null;
+    }
 });

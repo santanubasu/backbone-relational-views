@@ -52,13 +52,6 @@ define([
             this.setupEventHandlers();
             this.render();
         },
-        /*
-        XXX
-        Because of the way events are fired, if you reach into a nested structure and get() a collection, then call add()
-        or remove() on that, no relational:change event is triggered on the containing model.  Therefore, no render happens.
-        This should be handled, but at the moment, the workaround is to modify the collection via a deep modification on
-        it's cotnaining model using the model's set() function.
-        */
         setupEventHandlers:function() {
             var thiz = this;
             var batchRender = (function(thiz) {
@@ -109,7 +102,12 @@ define([
         },
         normalizeSubviewConfig: function (config) {
             var normalizedConfig = $.extend(true, {}, config);
-            if (us.isUndefined(normalizedConfig.viewType)) {
+            if (us.isFunction(normalizedConfig.viewType)) {
+                if (!(normalizedConfig.viewType.prototype instanceof bb.RelationalView)) {
+                    normalizedConfig.viewType = normalizedConfig.viewType();
+                }
+            }
+            else {
                 normalizedConfig.viewType = bb.RelationalView;
             }
             if (us.isUndefined(normalizedConfig.template)) {
