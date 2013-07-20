@@ -322,6 +322,26 @@ define([
                 }
             ]
         });
+        next = s1400;
+    }
+
+    function s1400() {
+        // Set relational element on self referential collection relation
+        c.set(
+            {
+                cc:[
+                    {
+                        id:"c10",
+                        a:{
+                            id:"a3",
+                            value:"a3"
+                        }
+                    }
+                ]
+            },
+            {
+                remove:false
+            });
         next = null;
     }
 });
