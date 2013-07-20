@@ -104,8 +104,17 @@ define([
 
     $("#next").on("click", function() {
         if (next!=null) {
-            $("#source").text(next.toString());
+            var source = "The function that just ran:\n\n"+next.toString();
             next();
+            if (next!=null) {
+                source+="\n\nThe function that will run next:\n\n"+next.toString();
+            }
+            else {
+                $(this).text("Start Over").on("click", function() {
+                    location.reload();
+                })
+            }
+            $("#source").text(source);
         }
     });
 
