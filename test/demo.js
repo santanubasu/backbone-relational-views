@@ -100,8 +100,6 @@ define([
     var c;
     var cv;
 
-    var next;
-
     $("#next").on("click", function() {
         if (next!=null) {
             var source = "The function that just ran:\n\n"+next.toString();
@@ -130,8 +128,8 @@ define([
         });
         next = s2;
     }
-    s1();
-    $("#source").html(s1.toString());
+    var next = s1;
+    $("#next").trigger("click");
 
     function s2() {
         // Modify a primitive property.
