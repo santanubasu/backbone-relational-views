@@ -342,6 +342,29 @@ define([
             {
                 remove:false
             });
+        next = s1500;
+    }
+
+    function s1500() {
+        // Add 1000 elements to relational collection
+        var data = [];
+        for (var i=1000; i<2000; i++) {
+            data.push({
+                id:"b"+i,
+                value:"b"+i
+            })
+        }
+        c.set({
+            bb:data
+        });
+        next = s1600;
+    }
+
+    function s1600() {
+        // Modify primitive property in structure containing large numbers of relational collection elements
+        c.set({
+            value:"c1-mod2"
+        });
         next = null;
     }
 });
