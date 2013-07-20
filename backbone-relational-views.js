@@ -76,11 +76,16 @@ define([
                 }
                 else {
                     thiz.listenTo(thiz.model, "relational:change:"+relation.key, function (model, options) {
-                        if (model.attributes[relation.key]==null) {
+                        var oldModel = model._previousAttributes[relation.key];
+                        var newModel = model.attributes[relation.key];
+                        if (oldModel===newModel) {
+                            return;
+                        }
+                        if (oldModel!=null) {
                             this.deleteDirectSubview(relation.key)
                         }
-                        else {
-                            this.createDirectSubview(relation.key, this.model.get(relation.key))
+                        if (newModel!=null) {
+                            this.createDirectSubview(relation.key, newModel)
                         }
                     });
                 }

@@ -97,6 +97,9 @@ define([
         })
     });
 
+    /*
+    Build the relational model with no relational submodels intially, and build the relational view using that model.
+    */
     var c = new C({
         id:"c1",
         value:"c1"
@@ -105,13 +108,60 @@ define([
         model:c,
         el:$("#demo")
     });
+    debugger;
 
+    /*
+    Modifying a primitive property
+     */
     c.set({
-        id:"c1",
+        value:"c1-mod1"
+    });
+    debugger;
+
+    /*
+    Setting a relational property
+     */
+    c.set({
         a:{
             id:"a1",
             value:"a1"
-        },
+        }
+    });
+    debugger;
+
+    /*
+    Replacing  a relational property
+     */
+    c.set({
+        a:{
+            id:"a2",
+            value:"a2"
+        }
+    });
+    debugger;
+
+    /*
+    Modifying a primitive property of a relational property, using deep reference
+     */
+    c.set({
+        a:{
+            value:"a2-mod1"
+        }
+    });
+    debugger;
+
+    /*
+    Modifying a primitive property of a relational property, using direct reference to relational property
+     */
+    c.get("a").set({
+        value:"a2-mod2"
+    });
+    debugger;
+
+    /*
+    Adding elements to a relational collection
+     */
+    c.set({
         bb:[
             {
                 id:"b1",
@@ -123,14 +173,13 @@ define([
             }
         ]
     });
+    debugger;
 
+    /*
+    Adding more elements to a relation collection using deep refernce, retaining existing ones, and applying sort
+     */
     c.set(
         {
-            id:"c1",
-            a:{
-                id:"a1",
-                value:"a1"
-            },
             bb:[
                 {
                     id:"b2",
@@ -140,6 +189,69 @@ define([
                     id:"b4",
                     value:"b4"
                 }
+            ]
+        },
+        {
+            remove:false
+        });
+    debugger;
+
+    /*
+    Adding more elements to a relation collection, using direct reference, retaining existing ones, and applying sort
+     */
+    c.get("bb").add([
+        {
+            id:"b5",
+            value:"b5"
+        },
+        {
+            id:"b6",
+            value:"b6"
+        }
+    ]);
+    debugger;
+
+
+    /*
+    Removing last two elements in a relational collection, using deep reference
+     */
+    c.set(
+        {
+            bb:[
+                {
+                    id:"b1",
+                    value:"b1"
+                },
+                {
+                    id:"b2",
+                    value:"b2"
+                },
+                {
+                    id:"b3",
+                    value:"b3"
+                },
+                {
+                    id:"b4",
+                    value:"b4"
+                }
+            ]
+        });
+    debugger;
+
+    /*
+    Removing the second element of relational collection, using direct reference
+     */
+    c.get("bb").remove(c.get("bb").at(1));
+    debugger;
+
+    c.set(
+        {
+            id:"c1",
+            bb:[
+                {
+                    id:"b2",
+                    value:"b2-mod"
+                },
             ]
         },
         {
