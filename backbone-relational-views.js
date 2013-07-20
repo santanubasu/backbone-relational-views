@@ -61,17 +61,32 @@ define([
         */
         setupEventHandlers:function() {
             var thiz = this;
+            var batchRender = (function(thiz) {
+                var batched = false;
+                function render() {
+                    if (batched) {
+                        thiz.render();
+                        batched = false;
+                    }
+                }
+                return function() {
+                    batched = true;
+                    us.defer(render);
+                }
+            })(this);
             this.listenTo(this.model, "change", function (model, options) {
-                this.render();
+                batchRender();
             });
             this.model.getRelations().forEach(function(relation) {
                 if (relation instanceof bb.HasMany) {
                     thiz.listenTo(thiz.model.get(relation.key), "relational:add", function (model, collection, options) {
                         var index = collection.indexOf(model);
                         this.createCollectionSubview(relation.key, index, model);
+                        batchRender();
                     });
                     thiz.listenTo(thiz.model.get(relation.key), "relational:remove", function (model, collection, options) {
                         this.deleteCollectionSubview(relation.key, options.index);
+                        batchRender();
                     });
                 }
                 else {
@@ -87,6 +102,7 @@ define([
                         if (newModel!=null) {
                             this.createDirectSubview(relation.key, newModel)
                         }
+                        batchRender();
                     });
                 }
             });

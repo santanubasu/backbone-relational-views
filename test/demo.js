@@ -97,166 +97,182 @@ define([
         })
     });
 
-    /*
-    Build the relational model with no relational submodels intially, and build the relational view using that model.
-    */
-    var c = new C({
-        id:"c1",
-        value:"c1"
-    });
-    var cv = new CV({
-        model:c,
-        el:$("#demo")
-    });
-    debugger;
+    var c;
+    var cv;
 
-    /*
-    Modifying a primitive property
-     */
-    c.set({
-        value:"c1-mod1"
-    });
-    debugger;
+    var next;
 
-    /*
-    Setting a relational property
-     */
-    c.set({
-        a:{
-            id:"a1",
-            value:"a1"
+    $("#next").on("click", function() {
+        if (next!=null) {
+            $("#source").text(next.toString());
+            next();
         }
     });
-    debugger;
 
-    /*
-    Replacing  a relational property
-     */
-    c.set({
-        a:{
-            id:"a2",
-            value:"a2"
-        }
-    });
-    debugger;
-
-    /*
-    Modifying a primitive property of a relational property, using deep reference
-     */
-    c.set({
-        a:{
-            value:"a2-mod1"
-        }
-    });
-    debugger;
-
-    /*
-    Modifying a primitive property of a relational property, using direct reference to relational property
-     */
-    c.get("a").set({
-        value:"a2-mod2"
-    });
-    debugger;
-
-    /*
-    Adding elements to a relational collection
-     */
-    c.set({
-        bb:[
-            {
-                id:"b1",
-                value:"b1"
-            },
-            {
-                id:"b3",
-                value:"b3"
-            }
-        ]
-    });
-    debugger;
-
-    /*
-    Adding more elements to a relation collection using deep refernce, retaining existing ones, and applying sort
-     */
-    c.set(
-        {
-            bb:[
-                {
-                    id:"b2",
-                    value:"b2"
-                },
-                {
-                    id:"b4",
-                    value:"b4"
-                }
-            ]
-        },
-        {
-            remove:false
+    function s1() {
+        // Build the relational model with no relational submodels initially, and build the relational view using that model.
+        c = new C({
+            id:"c1",
+            value:"c1"
         });
-    debugger;
+        cv = new CV({
+            model:c,
+            el:$("#result")
+        });
+        next = s2;
+    }
+    s1();
+    $("#source").html(s1.toString());
 
-    /*
-    Adding more elements to a relation collection, using direct reference, retaining existing ones, and applying sort
-     */
-    c.get("bb").add([
-        {
-            id:"b5",
-            value:"b5"
-        },
-        {
-            id:"b6",
-            value:"b6"
-        }
-    ]);
-    debugger;
+    function s2() {
+        // Modify a primitive property.
+        c.set({
+            value:"c1-mod1"
+        });
+        next = s3;
+    }
 
+    function s3() {
+        // Set a relational property.
+        c.set({
+            a:{
+                id:"a1",
+                value:"a1"
+            }
+        });
+        next = s4;
+    }
 
-    /*
-    Removing last two elements in a relational collection, using deep reference
-     */
-    c.set(
-        {
+    function s4() {
+        // Replace  a relational property.
+        c.set({
+            a:{
+                id:"a2",
+                value:"a2"
+            }
+        });
+        next = s5;
+    }
+
+    function s5() {
+        // Modify a primitive property of a relational property, using deep reference.
+        c.set({
+            a:{
+                value:"a2-mod1"
+            }
+        });
+        next = s6;
+    }
+
+    function s6() {
+        // Modify a primitive property of a relational property, using direct reference to relational property.
+        c.get("a").set({
+            value:"a2-mod2"
+        });
+        next = s7;
+    }
+
+    function s7() {
+        // Add elements to a relational collection.
+        c.set({
             bb:[
                 {
                     id:"b1",
                     value:"b1"
                 },
                 {
-                    id:"b2",
-                    value:"b2"
-                },
-                {
                     id:"b3",
                     value:"b3"
-                },
-                {
-                    id:"b4",
-                    value:"b4"
                 }
             ]
         });
-    debugger;
+        next = s8;
+    }
+
+    function s8() {
+        // Add more elements to a relation collection using deep reference, retaining existing ones, and applying sort.
+        c.set(
+            {
+                bb:[
+                    {
+                        id:"b2",
+                        value:"b2"
+                    },
+                    {
+                        id:"b4",
+                        value:"b4"
+                    }
+                ]
+            },
+            {
+                remove:false
+            });
+        next = s9;
+    }
+
+    function s9() {
+        // Add more elements to a relation collection, using direct reference, retaining existing ones, and applying sort.
+        c.get("bb").add([
+            {
+                id:"b5",
+                value:"b5"
+            },
+            {
+                id:"b6",
+                value:"b6"
+            }
+        ]);
+        next = s10;
+    }
+
+    function s10() {
+        // Remove last two elements in a relational collection, using deep reference.
+        c.set(
+            {
+                bb:[
+                    {
+                        id:"b1",
+                        value:"b1"
+                    },
+                    {
+                        id:"b2",
+                        value:"b2"
+                    },
+                    {
+                        id:"b3",
+                        value:"b3"
+                    },
+                    {
+                        id:"b4",
+                        value:"b4"
+                    }
+                ]
+            });
+        next = s11;
+    }
+
+    function s11() {
+        // Remove the second element of relational collection, using direct reference
+        c.get("bb").remove(c.get("bb").at(1));
+        next = null;
+    }
 
     /*
-    Removing the second element of relational collection, using direct reference
+            c.set(
+            {
+                id:"c1",
+                bb:[
+                    {
+                        id:"b2",
+                        value:"b2-mod"
+                    },
+                ]
+            },
+            {
+                remove:false
+            });
+
+        c.unset("a");
+
      */
-    c.get("bb").remove(c.get("bb").at(1));
-    debugger;
-
-    c.set(
-        {
-            id:"c1",
-            bb:[
-                {
-                    id:"b2",
-                    value:"b2-mod"
-                },
-            ]
-        },
-        {
-            remove:false
-        });
-
-    c.unset("a");
 });
