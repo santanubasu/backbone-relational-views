@@ -7,15 +7,15 @@ define([
 ], function (bb, bbr, bbrv, us, $) {
 
     var templateA = function(data) {
-        return "<div style='text-indent:10px'>"+data.value+"</div>";
+        return "<div style='position:relative;left:20px'>"+data.value+"</div>";
     }
 
     var templateB = function(data) {
-        return "<div style='text-indent:10px'>"+data.value+"</div>";
+        return "<div style='position:relative;left:20px'>"+data.value+"</div>";
     }
 
     var templateC = function(data) {
-        return "<div style='text-indent:10px'><div>"+data.value+"</div>"+data.a+data.bb+"</div>";
+        return "<div style='position:relative;left:20px'><div>"+data.value+"</div>"+data.a+data.bb.join(" ")+"</div>";
     }
 
     var A = bb.RelationalModel.extend({
@@ -118,9 +118,33 @@ define([
                 value:"b1"
             },
             {
-                id:"b2",
-                value:"b2"
+                id:"b3",
+                value:"b3"
             }
         ]
-    })
+    });
+
+    c.set(
+        {
+            id:"c1",
+            a:{
+                id:"a1",
+                value:"a1"
+            },
+            bb:[
+                {
+                    id:"b2",
+                    value:"b2"
+                },
+                {
+                    id:"b4",
+                    value:"b4"
+                }
+            ]
+        },
+        {
+            remove:false
+        });
+
+    c.unset("a");
 });

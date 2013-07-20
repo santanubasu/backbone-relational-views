@@ -46,25 +46,11 @@ define([
             subviewConfigs: {}
         },
         initialize: function (options) {
-            var thiz = this;
             this.config = this.normalizeConfig($.extend(true, {}, this.defaultConfig, us.pick(options, ["template", "subviewConfigs"])));
             this.subviews = {};
-            this.pendingChanges = {};
             this.createSubviews();
             this.setupEventHandlers();
             this.render();
-        },
-        markChangesPending:function(changes) {
-            this.pendingChanges = $.extend({}, changes);
-        },
-        markChangeProcessed:function(key) {
-            delete this.pendingChanges[key];
-            if ($.isEmptyObject(this.pendingChanges)) {
-                this.render();
-            }
-        },
-        isChangePending:function() {
-            return !($.isEmptyObject(this.pendingChanges));
         },
         /*
         XXX
@@ -76,23 +62,7 @@ define([
         setupEventHandlers:function() {
             var thiz = this;
             this.listenTo(this.model, "change", function (model, options) {
-                var args = [this.model.changedAttributes()];
-                args.push.apply(args, this.model.getRelations().map(function(relation) {return relation.key;}))
-                var changes = us.pick.apply(this, args);
-                if ($.isEmptyObject(changes)) {
-                    this.render();
-                }
-                else {
-                    for (var key in changes) {
-                        if (us.isArray(changes[key])) {
-                            changes[key] = [];
-                        }
-                        else {
-                            changes[key] = {};
-                        }
-                    }
-                    this.markChangesPending(changes);
-                }
+                this.render();
             });
             this.model.getRelations().forEach(function(relation) {
                 if (relation instanceof bb.HasMany) {
@@ -103,11 +73,16 @@ define([
                     thiz.listenTo(thiz.model.get(relation.key), "relational:remove", function (model, collection, options) {
                         this.deleteCollectionSubview(relation.key, options.index);
                     });
-                    thiz.listenTo(thiz.model.get(relation.key), "relational:change", function (model, collection, options) {
-                        this.markChangeProcessed(relation.key);
-                    });
                 }
                 else {
+                    thiz.listenTo(thiz.model, "relational:change:"+relation.key, function (model, options) {
+                        if (model.attributes[relation.key]==null) {
+                            this.deleteDirectSubview(relation.key)
+                        }
+                        else {
+                            this.createDirectSubview(relation.key, this.model.get(relation.key))
+                        }
+                    });
                 }
             });
         },
@@ -200,7 +175,7 @@ define([
             this.subviews[key].splice(index, 0, subview);
 
         },
-        deleteSubview: function (key) {
+        deleteDirectSubview: function (key) {
             var subview = this.subviews[key];
             if (!us.isUndefined(subview)) {
                 subview.destroy();
