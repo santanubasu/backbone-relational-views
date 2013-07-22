@@ -1,6 +1,8 @@
 # Backbone Relational Views
 
-Backbone Relational Views (BBRV) is a Javascript library that augments Backbone, and complements the excellent Backbone Relational library.  The goal of BBRV is to make to easy to work with related views, just as Backbone Relational makes it easy to work with related models.  It adds a RelationalView to the Backbone object, which you can extend to define your custom related views.
+Backbone Relational Views (BBRV) is a Javascript library that augments Backbone, and complements the excellent Backbone Relational library.  The goal of BBRV is to make to easy to work with related views, just as Backbone Relational makes it easy to work with related models.  It allows the construction of complex visual renderings of composite data structures by adding a RelationalView type to the Backbone object, which you can extend to define your custom related views.
+
+### An example
 
 Here's a quick example of using BBRV to define views for a set of related models.  First, create some templates (see below for more on templating) and the relational models that will back the relational views:
 
