@@ -78,7 +78,7 @@ you'll have created a new view cv backed by model c, as well as a child view of 
 
 # Defining a relational view
 
-Here's one of the relational views definitions from the intro:
+Here's one of the relational view definitions from the intro:
 
 ```javascript
 var CV = Backbone.RelationalView.extend({
@@ -134,7 +134,7 @@ var CV = bb.RelationalView.extend({
 
 (of course, you'd have to define a template for BV, see the section on templating for more on this)
 
-So this relational view structure corresponds to data structure like this, for example:
+So this relational view structure corresponds to a data structure like this, for example:
 
 ```javascript
 var data = {
