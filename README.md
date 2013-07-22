@@ -183,7 +183,11 @@ var C = Backbone.RelationalModel.extend({
 });
 ```
 
-### View types and templates
+### Templates and view types
+
+A template is any function that converts a POJO (plain old javascript object) into markup.  Template functions are passed a single data obect, and they can do pretty much whatever they want with that to generate the output markup.  They should not modify the passed data object.
+
+Even though a template function expects POJOs, it can be used to render relational views, because for any property key referenced in the template that corresponds to a subview, a POJO proxy of the subview is first created.  After generating the markup for the view and converting into a DOM structure, the DOM structure of the subviews are inserted into points in the views DOM that have been specially marked during the rendering of the POJO proxy.  
 
 When providing the configuration for a custom RelationalView, you supply the default template to use for views of that type, as well as the types and templates used for subviews that can be created.  It's important to keep in mind the interaction between the two template specifiers.  Consider the following example:
 
@@ -262,3 +266,7 @@ var cv = new CV({
 ```
 
 This will render two views.  The first one, av, will be rendered with a &lt;code> element.  The second, cv, will contain a related view within it of type AV, but which is rendered using a &lt;p> element.  So this illustrates that when a view is contained within another, the containing view can override the template used to render the contained view.  This is one way to customize the appearance of your composite view structure.
+
+An even more powerful approach (which applies to both templates and view types) is to use deferred resolution.  This is east to accomplish by slightly modifying the configuration of your RelationalViews.  For example:
+
+TBD
