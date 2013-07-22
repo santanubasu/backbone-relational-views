@@ -102,17 +102,28 @@ define([
         },
         normalizeSubviewConfig: function (config) {
             var normalizedConfig = $.extend(true, {}, config);
-            if (us.isFunction(normalizedConfig.viewType)) {
+            if (!us.isUndefined(normalizedConfig.viewType)) {
                 if (!(normalizedConfig.viewType.prototype instanceof bb.RelationalView)) {
-                    normalizedConfig.viewType = normalizedConfig.viewType();
+                    console.warn("A viewType was defined for a subview config, but it is not a RelationalView, reverting to using RelationalView as the viewType.");
+                    normalizedConfig.viewType = bb.RelationalView;
                 }
             }
             else {
                 normalizedConfig.viewType = bb.RelationalView;
             }
+            if (us.isUndefined(normalizedConfig.getViewType)) {
+                normalizedConfig.getViewType = function () {
+                    return normalizedConfig.viewType;
+                };
+            }
             if (us.isUndefined(normalizedConfig.template)) {
                 normalizedConfig.template = function (it) {
                     return "";
+                };
+            }
+            if (us.isUndefined(normalizedConfig.getTemplate)) {
+                normalizedConfig.getTemplate = function () {
+                    return normalizedConfig.template;
                 };
             }
             return normalizedConfig;
@@ -176,9 +187,11 @@ define([
             if (us.isUndefined(subviewConfig)) {
                 return;
             }
-            subview = new subviewConfig.viewType({
+            var viewType = subviewConfig.getViewType.call(this, model);
+            var template = subviewConfig.getTemplate.call(this, model);
+            subview = new viewType({
                 model:model,
-                template: subviewConfig.template
+                template:template
             });
             this.subviews[key] = subview;
         },
@@ -187,9 +200,11 @@ define([
             if (us.isUndefined(subviewConfig)) {
                 return;
             }
-            var subview = new subviewConfig.viewType({
+            var viewType = subviewConfig.getViewType.call(this, model, index);
+            var template = subviewConfig.getTemplate.call(this, model, index);
+            var subview = new viewType({
                 model: model,
-                template: subviewConfig.template
+                template:template
             });
             this.subviews[key].splice(index, 0, subview);
 

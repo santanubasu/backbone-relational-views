@@ -109,7 +109,7 @@ define([
                 },
                 cc:{
                     template:templateC,
-                    viewType:function() {
+                    getViewType:function() {
                         return CV;
                     }
                 }
