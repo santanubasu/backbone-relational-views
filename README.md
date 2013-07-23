@@ -267,7 +267,7 @@ var cv = new CV({
 
 This will render two views.  The first one, av, will be rendered with a &lt;code> element.  The second, cv, will contain a related view within it of type AV, but which is rendered using a &lt;p> element.  So this illustrates that when a view is contained within another, the containing view can override the template used to render the contained view.  This is one way to customize the appearance of your composite view structure.
 
-An even more powerful approach is to use deferred template resolution.  This is east to accomplish by slightly modifying the configuration of your RelationalViews.  For example, here's a modification of the view type definition for CV:
+An even more powerful approach is to use deferred template resolution.  This is easiest to accomplish by slightly modifying the configuration of your RelationalViews.  For example, here's a modification of the view type definition for CV:
 
 ```javascript
 var CV = bb.RelationalView.extend({
@@ -291,8 +291,8 @@ var CV = bb.RelationalView.extend({
 
 ```
 
-Instead of defining a template directly for the subview, a getTemplate function is deined.  This gets called immediately prior to the generation of the subview.  It is passed the model that backs the subview that will be created, and it is called in the context of the containing view, so "this" is set accordingly.  Note that in the case of subviews that are defined for relational collections, the getTemplate function will be passed the model, as well as the index of that model within it's collection.
+Instead of defining a template directly for the subview, a getTemplate function is deined.  This gets called immediately prior to the generation of the subview.  It is passed the model that backs the subview, and it is called in the context of this subview once it exists, so "this" is set accordingly.  
 
-The third approach to customization is the most flexible, and allows for deferred view type resolution.  It's analagous to deferred template resolution, except instead of defining a getTemplate function, you delcare a getViewType function, which has the same signature as getTemplate, but returns a view type to be used to construct the subview.
+The third approach to customization is the most flexible, and allows for deferred view type resolution.  It's analagous to deferred template resolution, except instead of defining a getTemplate function, you define a getViewType function, which returns a view type to be used to construct the subview.  The getViewType function is passed the model that will back the subview when it is created, and is called in the context of the containing view, with "this" set accordingly.
 
-The two forms of deferred resolution can be used jointly.  In that case a deferred view type constructor will be passed a deferred template function to construct the new subview.
+The two forms of deferred resolution can be used jointly.  In that case a deferred view type constructor will be passed a deferred template resolver function, which will in turn be called within the new subview's render function.
