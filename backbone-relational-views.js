@@ -1,6 +1,6 @@
 /**
  * backbone-relational-views.js 0.1.1
- * (c) 2011-2013 Santanu Basu
+ * (c) 2013 Santanu Basu
  *
  * Dependencies:
  *
