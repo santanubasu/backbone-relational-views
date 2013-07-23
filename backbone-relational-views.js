@@ -57,7 +57,7 @@ define([
             subviewConfigs: {}
         },
         initialize: function (options) {
-            this.config = this.normalizeConfig($.extend(true, {}, this.defaultConfig, us.pick(options, ["template", "subviewConfigs"])));
+            this.config = this.normalizeConfig($.extend(true, {}, this.defaultConfig, us.pick(options, ["template", "getTemplate", "subviewConfigs"])));
             this.subviews = {};
             this.createSubviews();
             this.setupEventHandlers();
@@ -127,6 +127,13 @@ define([
                     return normalizedConfig.viewType;
                 };
             }
+            return normalizedConfig;
+        },
+        normalizeConfig: function (config) {
+            var normalizedConfig = $.extend(true, {}, config);
+            for (var key in normalizedConfig.subviewConfigs) {
+                normalizedConfig.subviewConfigs[key] = this.normalizeSubviewConfig(normalizedConfig.subviewConfigs[key]);
+            }
             if (us.isUndefined(normalizedConfig.template)) {
                 normalizedConfig.template = function (it) {
                     return "";
@@ -136,13 +143,6 @@ define([
                 normalizedConfig.getTemplate = function () {
                     return normalizedConfig.template;
                 };
-            }
-            return normalizedConfig;
-        },
-        normalizeConfig: function (config) {
-            var normalizedConfig = $.extend(true, {}, config);
-            for (var key in normalizedConfig.subviewConfigs) {
-                normalizedConfig.subviewConfigs[key] = this.normalizeSubviewConfig(normalizedConfig.subviewConfigs[key]);
             }
             return normalizedConfig;
         },
@@ -199,10 +199,10 @@ define([
                 return;
             }
             var viewType = subviewConfig.getViewType.call(this, model);
-            var template = subviewConfig.getTemplate.call(this, model);
             subview = new viewType({
                 model:model,
-                template:template
+                template:subviewConfig.template,
+                getTemplate:subviewConfig.getTemplate
             });
             this.subviews[key] = subview;
         },
@@ -212,10 +212,10 @@ define([
                 return;
             }
             var viewType = subviewConfig.getViewType.call(this, model, index);
-            var template = subviewConfig.getTemplate.call(this, model, index);
             var subview = new viewType({
                 model: model,
-                template:template
+                template:subviewConfig.template,
+                getTemplate:subviewConfig.getTemplate
             });
             this.subviews[key].splice(index, 0, subview);
 
@@ -268,7 +268,8 @@ define([
                 }
             }
 
-            var $proxyEl = $(this.config.template(proxyAttributes));
+            var template = this.config.getTemplate.call(this, this.model);
+            var $proxyEl = $(template(proxyAttributes));
 
             for (var key in this.subviews) {
                 var value = this.subviews[key];
