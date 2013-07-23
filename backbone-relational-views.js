@@ -113,7 +113,7 @@ define([
         },
         normalizeSubviewConfig: function (config) {
             var normalizedConfig = $.extend(true, {}, config);
-            if (!us.isUndefined(normalizedConfig.viewType)) {
+            if (normalizedConfig.viewType) {
                 if (!(normalizedConfig.viewType.prototype instanceof bb.RelationalView)) {
                     console.warn("A viewType was defined for a subview config, but it is not a RelationalView, reverting to using RelationalView as the viewType.");
                     normalizedConfig.viewType = bb.RelationalView;
@@ -189,15 +189,15 @@ define([
             }
         },
         createDirectSubview: function (key, model) {
-            var subview = this.subviews[key];
-            if (!us.isUndefined(subview)) {
+            if (key in this.subviews) {
                 console.warn("Cannot create a direct subview for key " + key + " because one already exists.");
                 return;
             }
-            var subviewConfig = this.config.subviewConfigs[key];
-            if (us.isUndefined(subviewConfig)) {
+            var subview = this.subviews[key];
+            if (!(key in this.config.subviewConfigs)) {
                 return;
             }
+            var subviewConfig = this.config.subviewConfigs[key];
             var viewType = subviewConfig.getViewType.call(this, model);
             subview = new viewType({
                 model:model,
@@ -207,10 +207,10 @@ define([
             this.subviews[key] = subview;
         },
         createCollectionSubview: function (key, index, model) {
-            var subviewConfig = this.config.subviewConfigs[key];
-            if (us.isUndefined(subviewConfig)) {
+            if (!(key in this.config.subviewConfigs)) {
                 return;
             }
+            var subviewConfig = this.config.subviewConfigs[key];
             var viewType = subviewConfig.getViewType.call(this, model, index);
             var subview = new viewType({
                 model: model,
@@ -222,16 +222,16 @@ define([
         },
         deleteDirectSubview: function (key) {
             var subview = this.subviews[key];
-            if (!us.isUndefined(subview)) {
+            if (subview) {
                 subview.destroy();
                 delete this.subviews[key];
             }
         },
         deleteCollectionSubview: function (key, index) {
             var subviews = this.subviews[key];
-            if (!us.isUndefined(subviews)) {
+            if (subviews) {
                 var subview = subviews[index];
-                if (!us.isUndefined(subview)) {
+                if (subview) {
                     subviews.splice(index, 1);
                     subview.destroy();
                 }
