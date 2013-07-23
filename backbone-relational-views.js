@@ -1,3 +1,14 @@
+/**
+ * backbone-relational-views.js 0.1.1
+ * (c) 2011-2013 Santanu Basu
+ *
+ * Dependencies:
+ *
+ * Backbone (https://github.com/documentcloud/backbone)
+ * Underscore (https://github.com/jashkenas/underscore/)
+ * Backbone-Relational (https://github.com/PaulUithol/Backbone-relational)
+ */
+
 define([
     "backbone",
     "underscore",
