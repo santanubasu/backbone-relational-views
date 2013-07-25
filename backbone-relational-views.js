@@ -268,6 +268,7 @@ define([
                 }
             }
 
+            proxyAttributes._view = this;
             var template = this.config.getTemplate.call(this, this.model);
             var $proxyEl = $(template(proxyAttributes));
 

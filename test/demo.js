@@ -7,7 +7,7 @@ define([
 ], function (bb, bbr, bbrv, us, $) {
 
     var templateA = function(data) {
-        return "<div style='position:relative;left:20px'>"+data.value+"</div>";
+        return "<div style='position:relative;left:20px'>"+data._view.helperFunction(data.value)+"</div>";
     }
 
     var templateB = function(data) {
@@ -30,6 +30,11 @@ define([
     C = bb.RelationalModel.extend({
         idAttribute:"id",
         relations:[
+            {
+                type:bb.HasOne,
+                key:"unuseda",
+                relatedModel: A
+            },
             {
                 type:bb.HasOne,
                 key:"a",
@@ -74,7 +79,15 @@ define([
         },
         defaultConfig: $.extend(true, {}, bb.RelationalView.prototype.defaultConfig, {
             template:templateA
-        })
+        }),
+        helperFunction:function(value) {
+            if (value=="Help wanted") {
+                return value+" -> The job is yours";
+            }
+            else {
+                return value;
+            }
+        }
     });
 
     var BV = bb.RelationalView.extend({
@@ -365,6 +378,18 @@ define([
         c.set({
             value:"c1-mod2"
         });
+        next = s1700;
+    }
+
+    function s1700() {
+        // Set a relational property, displaying results from helper function.
+        c.set({
+            a:{
+                id:"a3",
+                value:"Help wanted"
+            }
+        });
         next = null;
     }
+
 });
