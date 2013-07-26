@@ -7,7 +7,7 @@ define([
 ], function (bb, bbr, bbrv, us, $) {
 
     var templateA = function(data) {
-        return "<div style='position:relative;left:20px'>"+data._view.helperFunction(data.value)+"</div>";
+        return "<div style='position:relative;left:20px'>"+data.this.helperFunction(data.value)+"</div>";
     }
 
     var templateB = function(data) {
