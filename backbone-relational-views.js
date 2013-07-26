@@ -123,8 +123,13 @@ define([
                 normalizedConfig.viewType = bb.RelationalView;
             }
             if (us.isUndefined(normalizedConfig.getViewType)) {
-                normalizedConfig.getViewType = function () {
+                normalizedConfig.getViewType = function() {
                     return normalizedConfig.viewType;
+                };
+            }
+            if (us.isUndefined(normalizedConfig.beforeInsert)) {
+                normalizedConfig.beforeInsert = function($subviewEl) {
+                    return $subviewEl;
                 };
             }
             return normalizedConfig;
@@ -253,6 +258,7 @@ define([
         it is prescribed that all templates must define a root element.
         */
         render: function () {
+            var thiz = this;
             this.preRender();
             var proxyAttributes = $.extend({}, this.model.attributes);
             for (var key in proxyAttributes) {
@@ -278,13 +284,13 @@ define([
                     var subviews = value;
                     $proxyEl.find("div[dataKey=\"" + key + "\"]").each(function (index, element) {
                         subviews[index].$el.attr("dataKey", key);
-                        $(element).replaceWith(subviews[index].$el);
+                        $(element).replaceWith(thiz.config.subviewConfigs[key].beforeInsert(subviews[index].$el));
                     });
                 }
                 else {
                     var subview = value;
                     subview.$el.attr("dataKey", key);
-                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(subview.$el);
+                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(thiz.config.subviewConfigs[key].beforeInsert(subview.$el));
                 }
             }
 
