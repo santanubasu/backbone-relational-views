@@ -209,6 +209,17 @@ define([
         c.get("a").set({
             value:"a2-mod2"
         });
+        next = s510;
+    }
+
+    function s510() {
+        // Set a relational property, displaying results from helper function.
+        c.set({
+            a:{
+                id:"a3",
+                value:"Help wanted"
+            }
+        });
         next = s600;
     }
 
@@ -382,12 +393,9 @@ define([
     }
 
     function s1700() {
-        // Set a relational property, displaying results from helper function.
-        c.set({
-            a:{
-                id:"a3",
-                value:"Help wanted"
-            }
+        // Modify a primitive value of a relational property in a collection containing a large numbers of relational collection elements
+        c.get("bb").at(5).set({
+            value:"b1004-mod1"
         });
         next = null;
     }
