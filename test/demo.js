@@ -397,6 +397,14 @@ define([
         c.get("bb").at(5).set({
             value:"b1004-mod1"
         });
+        next = s1800;
+    }
+
+    function s1800() {
+        // Sort a collection containing a large numbers of relational collection elements
+        c.get("bb").comparator = bbrv.buildComparator([{path:"value", order:1}]);
+        c.get("bb").sort();
+        cv.render();
         next = null;
     }
 

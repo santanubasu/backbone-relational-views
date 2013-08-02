@@ -85,11 +85,11 @@ define([
                 if (relation instanceof bb.HasMany) {
                     thiz.listenTo(thiz.model.get(relation.key), "relational:add", function (model, collection, options) {
                         var index = collection.indexOf(model);
-                        this.createCollectionSubview(relation.key, index, model);
+                        this.createCollectionSubview(relation.key, model.id, index, model);
                         batchRender();
                     });
                     thiz.listenTo(thiz.model.get(relation.key), "relational:remove", function (model, collection, options) {
-                        this.deleteCollectionSubview(relation.key, options.index);
+                        this.deleteCollectionSubview(relation.key, model.id, options.index);
                         batchRender();
                     });
                 }
@@ -127,11 +127,6 @@ define([
                     return normalizedConfig.viewType;
                 };
             }
-            if (us.isUndefined(normalizedConfig.beforeInsert)) {
-                normalizedConfig.beforeInsert = function($subviewEl) {
-                    return $subviewEl;
-                };
-            }
             return normalizedConfig;
         },
         normalizeConfig: function (config) {
@@ -157,14 +152,14 @@ define([
             this.undelegateEvents();
             for (var key in this.subviews) {
                 var value = this.subviews[key];
-                if (us.isArray(value)) {
-                    value.forEach(function (subview) {
-                        subview.destroy();
-                    })
-                }
-                else {
+                if (value instanceof bb.RelationalView) {
                     var subview = value;
                     subview.destroy();
+                }
+                else {
+                    for (var subview in value) {
+                        subview.destroy();
+                    }
                 }
             }
         },
@@ -183,17 +178,18 @@ define([
                 */
                 if (relation instanceof bb.HasMany) {
                     var collection = value;
-                    this.subviews[key] = [];
+                    this.subviews[key] = {};
                     for (var i = 0; i<collection.models.length; i++) {
-                        this.createCollectionSubview(key, i, this.model.get(key).at(i));
+                        var model = collection.at(i);
+                        this.createCollectionSubview(key, model.id, i, model);
                     }
                 }
                 else {
-                    this.createDirectSubview(key, this.model.get(key));
+                    this.createDirectSubview(key, value);
                 }
             }
         },
-        createDirectSubview: function (key, model) {
+        createDirectSubview: function(key, model) {
             if (key in this.subviews) {
                 console.warn("Cannot create a direct subview for key " + key + " because one already exists.");
                 return;
@@ -211,7 +207,7 @@ define([
             });
             this.subviews[key] = subview;
         },
-        createCollectionSubview: function (key, index, model) {
+        createCollectionSubview: function(key, modelId, index, model) {
             if (!(key in this.config.subviewConfigs)) {
                 return;
             }
@@ -222,7 +218,7 @@ define([
                 template:subviewConfig.template,
                 getTemplate:subviewConfig.getTemplate
             });
-            this.subviews[key].splice(index, 0, subview);
+            this.subviews[key][modelId] = subview;
 
         },
         deleteDirectSubview: function (key) {
@@ -232,12 +228,12 @@ define([
                 delete this.subviews[key];
             }
         },
-        deleteCollectionSubview: function (key, index) {
+        deleteCollectionSubview: function (key, modelId) {
             var subviews = this.subviews[key];
             if (subviews) {
-                var subview = subviews[index];
+                var subview = subviews[modelId];
+                delete subviews[modelId];
                 if (subview) {
-                    subviews.splice(index, 1);
                     subview.destroy();
                 }
             }
@@ -252,45 +248,38 @@ define([
         },
         preRender: function () {
         },
-        /*
-        XXX
-        This is potentially very inefficient for long lists, will need to optimize later.  Also note that at the moment
-        it is prescribed that all templates must define a root element.
-        */
         render: function () {
             var thiz = this;
             this.preRender();
             var proxyAttributes = $.extend({}, this.model.attributes);
             for (var key in proxyAttributes) {
                 var attribute = proxyAttributes[key];
+                var markup = "<div dataKey=\"" + key + "\"/>";
                 if (attribute instanceof bb.Model) {
-                    proxyAttributes[key] = "<div dataKey=\"" + key + "\"/>";
+                    proxyAttributes[key] = markup;
                 }
                 else if (attribute instanceof bb.Collection) {
-                    var markup = "<div dataKey=\"" + key + "\"/>";
-                    proxyAttributes[key] = proxyAttributes[key].map(function (value, index) {
-                        return markup;
-                    });
+                    proxyAttributes[key] = [markup];
                 }
             }
 
             proxyAttributes.this = this;
             var template = this.config.getTemplate.call(this, this.model);
             var $proxyEl = $(template(proxyAttributes));
+            $proxyEl.attr("modelId", this.model.id);
 
             for (var key in this.subviews) {
                 var value = this.subviews[key];
-                if (us.isArray(value)) {
-                    var subviews = value;
-                    $proxyEl.find("div[dataKey=\"" + key + "\"]").each(function (index, element) {
-                        subviews[index].$el.attr("dataKey", key);
-                        $(element).replaceWith(thiz.config.subviewConfigs[key].beforeInsert(subviews[index].$el));
-                    });
-                }
-                else {
+                if (value instanceof bb.RelationalView) {
                     var subview = value;
                     subview.$el.attr("dataKey", key);
-                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(thiz.config.subviewConfigs[key].beforeInsert(subview.$el));
+                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(subview.$el);
+                }
+                else {
+                    var subviews = value;
+                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(this.model.get(key).models.map(function(model) {
+                        return subviews[model.id].$el;
+                    }));
                 }
             }
 
