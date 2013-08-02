@@ -136,7 +136,10 @@ define([
     $("#next").on("click", function() {
         if (next!=null) {
             var source = "The function that just ran:\n\n"+next.toString();
+            var start = new Date().getTime();
             next();
+            var end = new Date().getTime();
+            source+="\n\nRunning time: "+(end-start)+"ms"
             if (next!=null) {
                 source+="\n\nThe function that will run next:\n\n"+next.toString();
             }
@@ -198,6 +201,7 @@ define([
         // Modify a primitive property of a relational property, using deep reference.
         c.set({
             a:{
+                id:"a2",
                 value:"a2-mod1"
             }
         });
@@ -357,8 +361,8 @@ define([
                     {
                         id:"c10",
                         a:{
-                            id:"a3",
-                            value:"a3"
+                            id:"a4",
+                            value:"a4"
                         }
                     }
                 ]
