@@ -372,7 +372,7 @@ define([
     function s1500() {
         // Add 1000 elements to relational collection
         var data = [];
-        for (var i=1000; i<2000; i++) {
+        for (var i=0; i<2000; i+=2) {
             data.push({
                 id:"b"+i,
                 value:"b"+i
@@ -405,7 +405,25 @@ define([
         c.get("bb").comparator = bbrv.buildComparator([{path:"value", order:1}]);
         c.get("bb").sort();
         cv.render();
-        next = null;
+        next = s1900;
     }
 
+    function s1900() {
+        // Add 10 more elements to relational collection containing an existing large number of elements
+        var data = [];
+        for (var i=1; i<20; i+=2) {
+            data.push({
+                id:"b"+i,
+                value:"b"+i
+            })
+        }
+        c.set(
+            {
+                bb:data
+            },
+            {
+                remove:false
+            });
+        next = null;
+    }
 });
