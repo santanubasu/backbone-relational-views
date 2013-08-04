@@ -162,6 +162,7 @@ define([
             model:c,
             el:$("#result")
         });
+        cv.render();
         next = s100;
     }
     var next = s000;
@@ -374,7 +375,7 @@ define([
     }
 
     function s1500() {
-        // Add 1000 elements to relational collection
+        // Add 1000 elements to relational collection that is rendered by a view
         var data = [];
         for (var i=0; i<2000; i+=2) {
             data.push({
@@ -383,6 +384,25 @@ define([
             })
         }
         c.set({
+            bb:data
+        });
+        next = s1510;
+    }
+
+    function s1510() {
+        // Add 1000 elements to relational collection that is not rendered by a view, for comparison
+        var cModelOnly = new C({
+            id:"cModelOnly",
+            value:"cModelOnly"
+        });
+        var data = [];
+        for (var i=10000; i<11000; i++) {
+            data.push({
+                id:"b"+i,
+                value:"b"+i
+            })
+        }
+        cModelOnly.set({
             bb:data
         });
         next = s1600;
@@ -428,12 +448,7 @@ define([
             {
                 remove:false
             });
-        next = s2000;
-    }
-
-    function s2000() {
-        // Render markup for view with large number of subviews, and convert to jquery element
-        var $el = $(cv.generateMarkup());
         next = null;
     }
+
 });
