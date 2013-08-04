@@ -83,6 +83,9 @@ define([
             });
             this.model.getRelations().forEach(function(relation) {
                 if (relation instanceof bb.HasMany) {
+                    thiz.listenTo(thiz.model.get(relation.key), "sort", function (model, collection, options) {
+                        batchRender();
+                    });
                     thiz.listenTo(thiz.model.get(relation.key), "relational:add", function (model, collection, options) {
                         var index = collection.indexOf(model);
                         this.createCollectionSubview(relation.key, model.id, index, model);
@@ -90,6 +93,9 @@ define([
                     });
                     thiz.listenTo(thiz.model.get(relation.key), "relational:remove", function (model, collection, options) {
                         this.deleteCollectionSubview(relation.key, model.id, options.index);
+                        batchRender();
+                    });
+                    thiz.listenTo(thiz.model.get(relation.key), "sort", function (model, collection, options) {
                         batchRender();
                     });
                 }
@@ -173,9 +179,6 @@ define([
                 if (us.isUndefined(relation)) {
                     continue;
                 }
-                /*
-                XXX, Very inefficient if many elements in collection to begin with
-                */
                 if (relation instanceof bb.HasMany) {
                     var collection = value;
                     this.subviews[key] = {};
