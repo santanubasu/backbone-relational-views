@@ -310,50 +310,6 @@ define([
             });
             $oldEl.replaceWith($markup);
         }
-        /*
-        render: function () {
-            var thiz = this;
-            this.preRender();
-            var proxyAttributes = $.extend({}, this.model.attributes);
-            for (var key in proxyAttributes) {
-                var attribute = proxyAttributes[key];
-                var markup = "<div dataKey=\"" + key + "\"/>";
-                if (attribute instanceof bb.Model) {
-                    proxyAttributes[key] = markup;
-                }
-                else if (attribute instanceof bb.Collection) {
-                    proxyAttributes[key] = [markup];
-                }
-            }
-
-            proxyAttributes.this = this;
-            var template = this.config.getTemplate.call(this, this.model);
-            var $proxyEl = $(template(proxyAttributes));
-            $proxyEl.attr("modelId", this.model.id);
-
-            for (var key in this.subviews) {
-                var value = this.subviews[key];
-                if (value instanceof bb.RelationalView) {
-                    var subview = value;
-                    subview.$el.attr("dataKey", key);
-                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(subview.$el);
-                }
-                else {
-                    var subviews = value;
-                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(this.model.get(key).models.map(function(model) {
-                        return subviews[model.id].$el;
-                    }));
-                }
-            }
-
-            var $oldEl = this.$el;
-            this.setElement($proxyEl);
-            $oldEl.replaceWith($proxyEl);
-
-            this.deferredPostRender();
-            return this;
-        }
-        */
     });
 
     return {
