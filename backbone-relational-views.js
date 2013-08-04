@@ -251,6 +251,26 @@ define([
         },
         preRender: function () {
         },
+        generateMarkup:function() {
+            var thiz = this;
+            var proxyAttributes = $.extend({}, this.model.attributes);
+            for (var key in proxyAttributes) {
+                var attribute = proxyAttributes[key];
+                if (attribute instanceof bb.Model) {
+                    var subview = this.subviews[key];
+                    proxyAttributes[key] = subview?subview.generateMarkup():"";
+                }
+                else if (attribute instanceof bb.Collection) {
+                    proxyAttributes[key] = attribute.map(function(model) {
+                        return thiz.subviews[key][model.id].generateMarkup();
+                    });
+                }
+            }
+            proxyAttributes.this = this;
+            var template = this.config.getTemplate.call(this, this.model);
+            var markup = template(proxyAttributes);
+            return markup;
+        },
         render: function () {
             var thiz = this;
             this.preRender();

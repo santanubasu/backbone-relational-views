@@ -428,6 +428,12 @@ define([
             {
                 remove:false
             });
+        next = s2000;
+    }
+
+    function s2000() {
+        // Render markup for view with large number of subviews, and convert to jquery element
+        var $el = $(cv.generateMarkup());
         next = null;
     }
 });
