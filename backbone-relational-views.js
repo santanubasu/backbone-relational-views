@@ -61,7 +61,7 @@ define([
             this.subviews = {};
             this.createSubviews();
             this.setupEventHandlers();
-            //this.render();
+            this.render();
         },
         setupEventHandlers:function() {
             var thiz = this;
@@ -86,12 +86,12 @@ define([
                     thiz.listenTo(thiz.model.get(relation.key), "sort", function (model, collection, options) {
                         batchRender();
                     });
-                    thiz.listenTo(thiz.model.get(relation.key), "add", function (model, collection, options) {
+                    thiz.listenTo(thiz.model.get(relation.key), "relational:add", function (model, collection, options) {
                         var index = collection.indexOf(model);
                         this.createCollectionSubview(relation.key, model.id, index, model);
                         batchRender();
                     });
-                    thiz.listenTo(thiz.model.get(relation.key), "remove", function (model, collection, options) {
+                    thiz.listenTo(thiz.model.get(relation.key), "relational:remove", function (model, collection, options) {
                         this.deleteCollectionSubview(relation.key, model.id, options.index);
                         batchRender();
                     });
@@ -251,64 +251,47 @@ define([
         },
         preRender: function () {
         },
-        generateMarkup:function() {
+        render: function () {
             var thiz = this;
+            this.preRender();
             var proxyAttributes = $.extend({}, this.model.attributes);
             for (var key in proxyAttributes) {
                 var attribute = proxyAttributes[key];
+                var markup = "<div dataKey=\"" + key + "\"/>";
                 if (attribute instanceof bb.Model) {
-                    var subview = this.subviews[key];
-                    proxyAttributes[key] = subview?subview.generateMarkup():"";
+                    proxyAttributes[key] = markup;
                 }
                 else if (attribute instanceof bb.Collection) {
-                    proxyAttributes[key] = attribute.map(function(model) {
-                        return thiz.subviews[key][model.id].generateMarkup();
-                    });
+                    proxyAttributes[key] = [markup];
                 }
             }
+
             proxyAttributes.this = this;
             var template = this.config.getTemplate.call(this, this.model);
-            var markup = "<div id="+this.model.id+">"+template(proxyAttributes)+"</div>";
-            return markup;
-        },
-        integrateMarkup:function(options) {
-            var $el;
-            if (options.$el) {
-                $el = options.$el;
-            }
-            else {
-                var $wrap = options.$context.find("#"+this.model.id);
-                $el = $wrap.contents();
-                $wrap.replaceWith($el);
-            }
-            this.setElement($el);
+            var $proxyEl = $(template(proxyAttributes));
+            $proxyEl.attr("modelId", this.model.id);
+
             for (var key in this.subviews) {
                 var value = this.subviews[key];
                 if (value instanceof bb.RelationalView) {
                     var subview = value;
-                    subview.integrateMarkup({
-                        $context:$el
-                    });
+                    subview.$el.attr("dataKey", key);
+                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(subview.$el);
                 }
                 else {
                     var subviews = value;
-                    var subview;
-                    for (var modelId in subviews) {
-                        subview = subviews[modelId];
-                        subview.integrateMarkup({
-                            $context:$el
-                        });
-                    }
+                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(this.model.get(key).models.map(function(model) {
+                        return subviews[model.id].$el;
+                    }));
                 }
             }
-        },
-        render:function() {
-            var $markup = $(this.generateMarkup());
+
             var $oldEl = this.$el;
-            this.integrateMarkup({
-                $el:$markup
-            });
-            $oldEl.replaceWith($markup);
+            this.setElement($proxyEl);
+            $oldEl.replaceWith($proxyEl);
+
+            this.deferredPostRender();
+            return this;
         }
     });
 
