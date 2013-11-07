@@ -57,9 +57,15 @@ define([
             subviewConfigs: {}
         },
         initialize: function (options) {
+            if (!this.model) {
+                this.model = new bb.RelationalModel();
+            }
             this.config = this.normalizeConfig($.extend(true, {}, this.defaultConfig, us.pick(options, ["template", "getTemplate", "subviewConfigs"])));
             this.subviews = {};
             this.createSubviews();
+            for (var key in options.subviews) {
+                this.setSubview(key, options.subviews[key]);
+            }
             this.setupEventHandlers();
             this.render();
         },
@@ -147,7 +153,7 @@ define([
             }
             if (us.isUndefined(normalizedConfig.getTemplate)) {
                 normalizedConfig.getTemplate = function () {
-                    return normalizedConfig.template;
+                    return this.config.template;
                 };
             }
             return normalizedConfig;
@@ -240,6 +246,18 @@ define([
                     subview.destroy();
                 }
             }
+        },
+        setSubview:function(key, subview) {
+            if (key in this.config.subviewConfigs) {
+                console.warn("You are manually setting a subview on key \""+key+"\" but a subview configuration already exists for this key.  Your subview may be overwritten as a result of model state changes.");
+            }
+            this.subviews[key] = subview;
+            if (this.model.has(key)) {
+                console.warn("You are manually setting a subview on key \""+key+"\" but a submodel already exists for this key.  This submodel will be overwritten by the model of the subview.");
+            }
+            this.model.set(key, subview.model, {
+                silent:true
+            });
         },
         deferredPostRender: function() {
             var thiz = this;
