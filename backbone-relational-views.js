@@ -57,6 +57,10 @@ define([
             subviewConfigs: {}
         },
         initialize: function (options) {
+            options = $.extend(true, {
+                render:true,
+                subviews:{}
+            }, options);
             if (!this.model) {
                 this.model = new bb.RelationalModel();
             }
@@ -67,7 +71,9 @@ define([
                 this.setSubview(key, options.subviews[key]);
             }
             this.setupEventHandlers();
-            this.render();
+            if (options.render) {
+                this.render();
+            }
         },
         setupEventHandlers:function() {
             var thiz = this;
