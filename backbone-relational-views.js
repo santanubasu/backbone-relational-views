@@ -64,7 +64,7 @@ define([
             if (!this.model) {
                 this.model = new bb.RelationalModel();
             }
-            this.config = this.normalizeConfig($.extend(true, {}, this.defaultConfig, us.pick(options, ["template", "getTemplate", "subviewConfigs"])));
+            this.config = this.normalizeConfig($.extend(true, {}, this.defaultConfig, us.pick(options, ["template", "getTemplate", "getEl", "subviewConfigs"])));
             this.subviews = {};
             this.createSubviews();
             for (var key in options.subviews) {
@@ -148,6 +148,7 @@ define([
             return normalizedConfig;
         },
         normalizeConfig: function (config) {
+            var thiz = this;
             var normalizedConfig = $.extend(true, {}, config);
             for (var key in normalizedConfig.subviewConfigs) {
                 normalizedConfig.subviewConfigs[key] = this.normalizeSubviewConfig(normalizedConfig.subviewConfigs[key]);
@@ -159,7 +160,12 @@ define([
             }
             if (us.isUndefined(normalizedConfig.getTemplate)) {
                 normalizedConfig.getTemplate = function () {
-                    return this.config.template;
+                    return normalizedConfig.template;
+                };
+            }
+            if (us.isUndefined(normalizedConfig.getEl)) {
+                normalizedConfig.getEl = function () {
+                    return thiz.$el;
                 };
             }
             return normalizedConfig;
@@ -257,6 +263,9 @@ define([
             if (key in this.config.subviewConfigs) {
                 console.warn("You are manually setting a subview on key \""+key+"\" but a subview configuration already exists for this key.  Your subview may be overwritten as a result of model state changes.");
             }
+            if (key in this.subviews) {
+                this.subviews[key].remove();
+            }
             this.subviews[key] = subview;
             if (this.model.has(key)) {
                 console.warn("You are manually setting a subview on key \""+key+"\" but a submodel already exists for this key.  This submodel will be overwritten by the model of the subview.");
@@ -310,7 +319,7 @@ define([
                 }
             }
 
-            var $oldEl = this.$el;
+            var $oldEl = this.config.getEl();
             this.setElement($proxyEl);
             $oldEl.replaceWith($proxyEl);
 
