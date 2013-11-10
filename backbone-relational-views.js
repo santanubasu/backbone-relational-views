@@ -75,6 +75,9 @@ define([
                 this.render();
             }
         },
+        getModelId:function(model) {
+            return "id" in model?model.id:model.cid;
+        },
         setupEventHandlers:function() {
             var thiz = this;
             var batchRender = (function(thiz) {
@@ -100,11 +103,11 @@ define([
                     });
                     thiz.listenTo(thiz.model.get(relation.key), "relational:add", function (model, collection, options) {
                         var index = collection.indexOf(model);
-                        this.createCollectionSubview(relation.key, model.id, index, model);
+                        this.createCollectionSubview(relation.key, index, model);
                         batchRender();
                     });
                     thiz.listenTo(thiz.model.get(relation.key), "relational:remove", function (model, collection, options) {
-                        this.deleteCollectionSubview(relation.key, model.id, options.index);
+                        this.deleteCollectionSubview(relation.key, this.getModelId(model), options.index);
                         batchRender();
                     });
                     thiz.listenTo(thiz.model.get(relation.key), "sort", function (model, collection, options) {
@@ -202,7 +205,7 @@ define([
                     this.subviews[key] = {};
                     for (var i = 0; i<collection.models.length; i++) {
                         var model = collection.at(i);
-                        this.createCollectionSubview(key, model.id, i, model);
+                        this.createCollectionSubview(key, i, model);
                     }
                 }
                 else {
@@ -228,7 +231,7 @@ define([
             });
             this.subviews[key] = subview;
         },
-        createCollectionSubview: function(key, modelId, index, model) {
+        createCollectionSubview: function(key, index, model) {
             if (!(key in this.config.subviewConfigs)) {
                 return;
             }
@@ -239,6 +242,7 @@ define([
                 template:subviewConfig.template,
                 getTemplate:subviewConfig.getTemplate
             });
+            var modelId = this.getModelId(model);
             this.subviews[key][modelId] = subview;
 
         },
@@ -302,7 +306,7 @@ define([
             proxyAttributes.this = this;
             var template = this.config.getTemplate.call(this, this.model);
             var $proxyEl = $(template(proxyAttributes));
-            $proxyEl.attr("modelId", this.model.id);
+            $proxyEl.attr("modelId", this.getModelId(this.model));
 
             for (var key in this.subviews) {
                 var value = this.subviews[key];
@@ -314,7 +318,7 @@ define([
                 else {
                     var subviews = value;
                     $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(this.model.get(key).models.map(function(model) {
-                        return subviews[model.id].$el;
+                        return subviews[thiz.getModelId(model)].$el;
                     }));
                 }
             }
