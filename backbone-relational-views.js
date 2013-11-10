@@ -299,7 +299,7 @@ define([
                     proxyAttributes[key] = markup;
                 }
                 else if (attribute instanceof bb.Collection) {
-                    proxyAttributes[key] = [markup];
+                    proxyAttributes[key] = attribute.length>0?[markup]:[];
                 }
             }
 
