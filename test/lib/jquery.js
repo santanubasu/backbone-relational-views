@@ -5724,7 +5724,7 @@ var isSimple = /^.[^:#\[\.,]*$/,
 	rneedsContext = jQuery.expr.match.needsContext,
 	// methods guaranteed to produce a unique set when starting from a unique set
 	guaranteedUnique = {
-		submodels: true,
+		children: true,
 		contents: true,
 		next: true,
 		prev: true
@@ -5896,7 +5896,7 @@ jQuery.each({
 	siblings: function( elem ) {
 		return jQuery.sibling( ( elem.parentNode || {} ).firstChild, elem );
 	},
-	submodels: function( elem ) {
+	children: function( elem ) {
 		return jQuery.sibling( elem.firstChild );
 	},
 	contents: function( elem ) {
