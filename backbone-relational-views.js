@@ -299,7 +299,9 @@ define([
                     proxyAttributes[key] = markup;
                 }
                 else if (attribute instanceof bb.Collection) {
-                    proxyAttributes[key] = attribute.length>0?[markup]:[];
+                    proxyAttributes[key] = attribute.map(function(model, index) {
+                        return "<div dataKey=\""+key+"\" index=\""+index+"\"/>";
+                    });
                 }
             }
 
@@ -317,9 +319,11 @@ define([
                 }
                 else {
                     var subviews = value;
-                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(this.model.get(key).models.map(function(model) {
-                        return subviews[thiz.getModelId(model)].$el;
-                    }));
+                    var submodelCollection = this.model.get(key);
+                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(function(index) {
+                        var submodel = submodelCollection.at(index);
+                        return subviews[thiz.getModelId(submodel)].$el;
+                    })
                 }
             }
 
