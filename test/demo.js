@@ -408,7 +408,6 @@ define([
         // Sort a collection containing a large numbers of relational collection elements
         c.get("bb").comparator = bbrv.buildComparator([{path:"value", order:1}]);
         c.get("bb").sort();
-        //cv.render();
         next = s1900;
     }
 
