@@ -183,6 +183,13 @@ define([
                 value:"a1"
             }
         });
+        next = s210;
+    }
+
+    function s210() {
+        // Display a view state overriding a model value.
+        cv.viewState.value = "c1-viewState";
+        cv.render();
         next = s300;
     }
 

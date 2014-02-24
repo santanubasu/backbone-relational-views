@@ -66,6 +66,7 @@ define([
             }
             this.config = this.normalizeConfig($.extend(true, {}, this.defaultConfig, us.pick(options, ["template", "getTemplate", "getEl", "subviewConfigs"])));
             this.subviews = {};
+            this.viewState = {};
             this.createSubviews();
             for (var key in options.subviews) {
                 this.setSubview(key, options.subviews[key]);
@@ -291,7 +292,7 @@ define([
         render: function () {
             var thiz = this;
             this.preRender();
-            var proxyAttributes = $.extend({}, this.model.attributes);
+            var proxyAttributes = $.extend({}, this.model.attributes, this.viewState);
             for (var key in proxyAttributes) {
                 var attribute = proxyAttributes[key];
                 var markup = "<div dataKey=\"" + key + "\"/>";
