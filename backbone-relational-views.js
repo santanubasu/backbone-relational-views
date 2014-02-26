@@ -185,8 +185,8 @@ define([
                     subview.destroy();
                 }
                 else {
-                    for (var subview in value) {
-                        subview.destroy();
+                    for (var subviewKey in value) {
+                        value[subviewKey].destroy();
                     }
                 }
             }
