@@ -66,12 +66,12 @@ define([
             }
             this.config = this.normalizeConfig($.extend(true, {}, this.defaultConfig, us.pick(options, ["template", "getTemplate", "getEl", "subviewConfigs"])));
             this.subviews = {};
-            this.viewState = {};
+            this.viewState = $.extend(true, {}, options.viewState);
             this.createSubviews();
             for (var key in options.subviews) {
                 this.setSubview(key, options.subviews[key]);
             }
-            this.setupEventHandlers();
+            this.setupModelEventHandlers();
             if (options.render) {
                 this.render();
             }
@@ -79,7 +79,7 @@ define([
         getModelId:function(model) {
             return "id" in model?model.id:model.cid;
         },
-        setupEventHandlers:function() {
+        setupModelEventHandlers:function() {
             var thiz = this;
             var batchRender = (function(thiz) {
                 var batched = false;
@@ -174,22 +174,27 @@ define([
             }
             return normalizedConfig;
         },
-        destroy: function () {
-            this.$el.empty();
-            this.stopListening();
-            this.undelegateEvents();
+        forAllSubviews:function(f) {
             for (var key in this.subviews) {
                 var value = this.subviews[key];
                 if (value instanceof bb.RelationalView) {
                     var subview = value;
-                    subview.destroy();
+                    f(key, subview);
                 }
                 else {
                     for (var subviewKey in value) {
-                        value[subviewKey].destroy();
+                        f(subviewKey, value[subviewKey]);
                     }
                 }
             }
+        },
+        destroy: function () {
+            this.$el.empty();
+            this.stopListening();
+            this.undelegateEvents();
+            this.forAllSubviews(function(key, view) {
+                view.destroy();
+            })
         },
         createSubviews: function () {
             for (var key in this.model.attributes) {
@@ -283,11 +288,21 @@ define([
             var thiz = this;
             us.defer(function () {
                 thiz.postRender();
+                thiz.setupAllEventHandlers();
             });
         },
         postRender: function () {
         },
         preRender: function () {
+        },
+        setupEventHandlers:function() {
+            this.delegateEvents();
+        },
+        setupAllEventHandlers:function() {
+            this.forAllSubviews(function(key, view) {
+                view.setupAllEventHandlers();
+            })
+            this.setupEventHandlers();
         },
         render: function () {
             var thiz = this;
