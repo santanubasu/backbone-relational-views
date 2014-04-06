@@ -16,9 +16,9 @@ define([
 ], function (bb, us, $) {
 
     /*
-    Sample spec: [{path:"a.b"}, {path:"c", order:-1}]
-    Currently, this builder only handles direct paths into simple objects, dotted notation does not traverse relationships
-    */
+     Sample spec: [{path:"a.b"}, {path:"c", order:-1}]
+     Currently, this builder only handles direct paths into simple objects, dotted notation does not traverse relationships
+     */
     var buildModelComparator = function (spec) {
         for (var i = 0; i<spec.length; i++) {
             var rule = spec[i];
@@ -143,6 +143,9 @@ define([
             }
             else {
                 normalizedConfig.viewType = bb.RelationalView;
+            }
+            if (!normalizedConfig.proxyElement) {
+                normalizedConfig.proxyElement = "div";
             }
             if (us.isUndefined(normalizedConfig.getViewType)) {
                 normalizedConfig.getViewType = function() {
@@ -310,14 +313,15 @@ define([
             this.preRender();
             var proxyAttributes = $.extend({}, this.model.attributes, this.viewState);
             for (var key in proxyAttributes) {
+                var proxyElement = this.config.subviewConfigs[key]?this.config.subviewConfigs[key].proxyElement:"div";
                 var attribute = proxyAttributes[key];
-                var markup = "<div dataKey=\"" + key + "\"/>";
+                var markup = "<"+proxyElement+" dataKey=\"" + key + "\"/>";
                 if (attribute instanceof bb.Model) {
                     proxyAttributes[key] = markup;
                 }
                 else if (attribute instanceof bb.Collection) {
                     proxyAttributes[key] = attribute.map(function(model, index) {
-                        return "<div dataKey=\""+key+"\" index=\""+index+"\"/>";
+                        return "<"+proxyElement+" dataKey=\""+key+"\" index=\""+index+"\"/>";
                     });
                 }
             }
@@ -329,15 +333,16 @@ define([
 
             for (var key in this.subviews) {
                 var value = this.subviews[key];
+                var proxyElement = this.config.subviewConfigs[key]?this.config.subviewConfigs[key].proxyElement:"div";
                 if (value instanceof bb.RelationalView) {
                     var subview = value;
                     subview.$el.attr("dataKey", key);
-                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(subview.$el);
+                    $proxyEl.find(proxyElement+"[dataKey=\"" + key + "\"]").replaceWith(subview.$el);
                 }
                 else {
                     var subviews = value;
                     var submodelCollection = this.model.get(key);
-                    $proxyEl.find("div[dataKey=\"" + key + "\"]").replaceWith(function(index) {
+                    $proxyEl.find(proxyElement+"[dataKey=\"" + key + "\"]").replaceWith(function(index) {
                         var submodel = submodelCollection.at(index);
                         return subviews[thiz.getModelId(submodel)].$el;
                     })
