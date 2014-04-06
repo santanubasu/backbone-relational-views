@@ -195,6 +195,7 @@ define([
             this.forAllSubviews(function(key, view) {
                 view.destroy();
             })
+            this.$el.remove();
         },
         createSubviews: function () {
             for (var key in this.model.attributes) {
