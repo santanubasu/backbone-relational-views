@@ -1,6 +1,7 @@
 /**
  * backbone-relational-views.js 0.1.1
- * (c) 2013 Santanu Basu
+ * (c) 2014 Santanu Basu
+ * MIT License
  *
  * Dependencies:
  *
@@ -288,25 +289,30 @@ define([
                 silent:true
             });
         },
-        deferredPostRender: function() {
-            var thiz = this;
-            us.defer(function () {
-                thiz.postRender();
-                thiz.setupAllEventHandlers();
-            });
-        },
-        postRender: function () {
-        },
         preRender: function () {
         },
-        setupEventHandlers:function() {
+        postRender:function() {
             this.delegateEvents();
         },
-        setupAllEventHandlers:function() {
+        postRenderAll:function() {
             this.forAllSubviews(function(key, view) {
-                view.setupAllEventHandlers();
+                view.postRenderAll();
             })
-            this.setupEventHandlers();
+            this.postRender();
+        },
+        cancelDeferredPostRender:function() {
+            clearTimeout(this.postRenderTimeout);
+            this.forAllSubviews(function(key, view) {
+                view.cancelDeferredPostRender();
+            })
+        },
+        deferPostRender:function() {
+            this.cancelDeferredPostRender();
+            this.postRenderTimeout = setTimeout(_.bind(function() {
+                if ($.contains(document.documentElement, this.$el[0])) {
+                    this.postRenderAll();
+                }
+            }, this), 1);
         },
         render: function () {
             var thiz = this;
@@ -353,7 +359,7 @@ define([
             this.setElement($proxyEl);
             $oldEl.replaceWith($proxyEl);
 
-            this.deferredPostRender();
+            this.deferPostRender();
             return this;
         }
     });
