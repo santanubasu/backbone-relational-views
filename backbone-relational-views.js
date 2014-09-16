@@ -315,6 +315,10 @@ define([
                 }
             }, this), 1);
         },
+        swap:function($oldEl, $newEl) {
+            this.setElement($newEl);
+            $oldEl.replaceWith($newEl);
+        },
         render: function () {
             var thiz = this;
             this.preRender();
@@ -357,8 +361,7 @@ define([
             }
 
             var $oldEl = this.config.getEl();
-            this.setElement($proxyEl);
-            $oldEl.replaceWith($proxyEl);
+            this.swap($oldEl, $proxyEl);
 
             this.deferPostRender();
             return this;
