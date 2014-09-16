@@ -80,40 +80,41 @@ define([
         getModelId:function(model) {
             return "id" in model?model.id:model.cid;
         },
+        setViewState:function(viewState) {
+            $.extend(true, this.viewState, viewState);
+            this.batchRender();
+        },
+        batchRender:function() {
+            this.batched = true;
+            var render = _.bind(function() {
+                if (this.batched) {
+                    this.render();
+                    this.batched = false;
+                }
+            }, this);
+            us.defer(render);
+        },
         setupModelEventHandlers:function() {
             var thiz = this;
-            var batchRender = (function(thiz) {
-                var batched = false;
-                function render() {
-                    if (batched) {
-                        thiz.render();
-                        batched = false;
-                    }
-                }
-                return function() {
-                    batched = true;
-                    us.defer(render);
-                }
-            })(this);
             this.listenTo(this.model, "change", function (model, options) {
-                batchRender();
+                thiz.batchRender();
             });
             this.model.getRelations().forEach(function(relation) {
                 if (relation instanceof bb.HasMany) {
                     thiz.listenTo(thiz.model.get(relation.key), "sort", function (model, collection, options) {
-                        batchRender();
+                        thiz.batchRender();
                     });
                     thiz.listenTo(thiz.model.get(relation.key), "relational:add", function (model, collection, options) {
                         var index = collection.indexOf(model);
                         this.createCollectionSubview(relation.key, index, model);
-                        batchRender();
+                        thiz.batchRender();
                     });
                     thiz.listenTo(thiz.model.get(relation.key), "relational:remove", function (model, collection, options) {
                         this.deleteCollectionSubview(relation.key, this.getModelId(model), options.index);
-                        batchRender();
+                        thiz.batchRender();
                     });
                     thiz.listenTo(thiz.model.get(relation.key), "sort", function (model, collection, options) {
-                        batchRender();
+                        thiz.batchRender();
                     });
                 }
                 else {
@@ -129,7 +130,7 @@ define([
                         if (newModel!=null) {
                             this.createDirectSubview(relation.key, newModel)
                         }
-                        batchRender();
+                        thiz.batchRender();
                     });
                 }
             });
